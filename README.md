@@ -11,7 +11,7 @@ Installation
 
 Boot into your Debian Netinstall cli system,
 log in and run these commands, as a normal user:
-(A fresh copy of this bl-netinstall package will be downloaded.)
+(A fresh copy of the bunsen-installscripts package will be downloaded.)
 
 wget https://github.com/isaaclo123/bunsen-installscripts/archive/master.tar.gz
 
