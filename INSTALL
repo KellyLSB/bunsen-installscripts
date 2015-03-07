@@ -47,6 +47,7 @@ rsync --exclude-from 'exclude.txt'  -abviuzP bunsen-pipemenus-master/. /usr/bin
 # installs pipemenus
 rsync --exclude-from 'exclude.txt'  -abviuzP bunsen-exit-master/usr/. /usr
 # installs bl-exit
+mkdir /usr/share/backgrounds
 rsync --exclude-from 'exclude.txt'  -abviuzP bunsen1-theme-master/Wallpapers/. /usr/share/backgrounds
 rsync --exclude-from 'exclude.txt'  -abviuzP bunsen-images-master/. /usr/share/backgrounds
 # installs wallpaper set
@@ -54,6 +55,7 @@ rsync --exclude-from 'exclude.txt'  -abviuzP bunsen-wmhacks-master/. /usr/bin
 # installs wm hacks
 rsync --exclude-from 'exclude.txt'  -abviuzP bunsen-lock-master/. /usr/bin
 # installs bunsen-lock
+mkdir /usr/lib/bunsen/bunsen-common
 rsync --exclude-from 'exclude.txt'  -abviuzP bunsen-common-master/. /usr/lib/bunsen/bunsen-common
 clear
 
