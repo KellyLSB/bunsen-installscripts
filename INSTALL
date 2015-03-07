@@ -65,18 +65,18 @@ clear
 echo "Updating debian..."
 sleep 5
 sudo apt-get --force-yes update
-sudo apt-get --force-yes --no-install-reccomends dist-upgrade
+sudo apt-get --force-yes --no-install-recommends dist-upgrade
 sudo apt-get --force-yes autoremove
 
 echo "Installing packages..."
 sleep 5
 # package list is mainly taken from John Raff's "Crunchbang Wally" http://crunchbang.org/forums/viewtopic.php?id=38994
 for pkg in $(cat packages.txt) ; do 
-		sudo apt-get --no-install-reccomends --ignore-missing --yes --force-yes install $pkg
+		sudo apt-get --no-install-recommends --ignore-missing --yes --force-yes install $pkg
 	done
 sudo apt-get --force-yes autoremove
 sudo apt-get --force-yes update
-sudo apt-get --force-yes --no-install-reccomends upgrade
+sudo apt-get --force-yes --no-install-recommends upgrade
 clear
 
 echo "Fix gksu"
