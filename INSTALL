@@ -16,19 +16,14 @@ sleep 5
 sudo apt-get --force-yes install rsync
 clear
 
-echo "Downloading Bunsen files"
+echo "Downloading and extracting Bunsen files"
 sleep 5
 for files in $(cat bunsenfiles.txt) ; do 
-		wget $files
-	done
-clear
-
-echo "unzipping Bunsen files"
-sleep 5
-for filename in *.tar.gz
-do
-  tar -xpf $filename
+	wget $files
+	tar -xpf master.tar.gz
+	rm -r master.tar.gz
 done
+clear
 
 echo "Moving system files..."
 sleep 5
