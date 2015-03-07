@@ -1,0 +1,120 @@
+#!/bin/bash
+if [ "$(id -u)" != "0" ]; then
+   echo "This install script must be run as root" 1>&2
+   exit 1
+fi
+#checkroot
+
+clear
+echo "Welcome to Bunsen Labs Linux installation (WARNING THIS IS STILL UNDERGOING TESTING)"
+echo "Please remember to open this file as root"
+read -p "Press [Enter] key to start install..."
+clear
+
+echo "Installing rsync"
+sleep 5
+sudo apt-get --force-yes install rsync
+clear
+
+echo "Downloading Bunsen files"
+sleep 5
+for files in $(cat bunsenfiles.txt) ; do 
+		wget $files
+	done
+clear
+
+echo "unzipping Bunsen files"
+sleep 5
+for filename in *.tar.gz
+do
+  tar -xpf $filename
+done
+
+echo "Moving system files..."
+sleep 5
+rm -r /etc/skel
+mkdir /etc/skel
+# removes default debian default home directory install and makes space for config files
+rsync --exclude-from 'exclude.txt'  -abviuzP systemfiles/. /
+#copies some system files
+rsync --exclude-from 'exclude.txt'  -abviuzP bunsen1-dark-theme-master /usr/share/themes
+rsync --exclude-from 'exclude.txt'  -abviuzP deb8-theme-master  /usr/share/themes
+rsync --exclude-from 'exclude.txt'  -abviuzP bunsen1-theme-master/Bunsen1 /usr/share/themes
+#copies over themes
+rsync --exclude-from 'exclude.txt'  -abviuzP bunsen-configs-master/. /etc/skel
+# copies config files
+mkdir /etc/skel/conky-BL
+rsync --exclude-from 'exclude.txt'  -abviuzP bunsen-conky-master/. /etc/skel/conky-BL
+# conky installation
+rsync --exclude-from 'exclude.txt'  -abviuzP bunsen-docs-master/. /usr/share/doc
+# installs docs
+rsync --exclude-from 'exclude.txt'  -abviuzP bunsen-pipemenus-master/. /usr/bin
+# installs pipemenus
+rsync --exclude-from 'exclude.txt'  -abviuzP bunsen-exit-master/usr/. /usr
+# installs bl-exit
+rsync --exclude-from 'exclude.txt'  -abviuzP bunsen1-theme-master/Wallpapers/. /usr/share/backgrounds
+rsync --exclude-from 'exclude.txt'  -abviuzP bunsen-images-master/. /usr/share/backgrounds
+# installs wallpaper set
+rsync --exclude-from 'exclude.txt'  -abviuzP bunsen-wmhacks-master/. /usr/bin
+# installs wm hacks
+rsync --exclude-from 'exclude.txt'  -abviuzP bunsen-lock-master/. /usr/bin
+# installs bunsen-lock
+rsync --exclude-from 'exclude.txt'  -abviuzP bunsen-common-master/. /usr/lib/bunsen/bunsen-common
+clear
+
+echo "Adding repo keys"
+sleep 5
+wget -qO - http://packages.crunchbang.org/waldorf-dev/crunchbang.key | sudo apt-key add -
+clear
+
+echo "Updating debian..."
+sleep 5
+sudo apt-get --force-yes update
+sudo apt-get --force-yes --no-install-reccomends dist-upgrade
+sudo apt-get --force-yes autoremove
+
+echo "Installing packages..."
+sleep 5
+# package list is mainly taken from John Raff's "Crunchbang Wally" http://crunchbang.org/forums/viewtopic.php?id=38994
+for pkg in $(cat packages.txt) ; do 
+		sudo apt-get --no-install-reccomends --ignore-missing --yes --force-yes install $pkg
+	done
+sudo apt-get --force-yes autoremove
+sudo apt-get --force-yes update
+sudo apt-get --force-yes --no-install-reccomends upgrade
+clear
+
+echo "Fix gksu"
+sleep 5
+sudo update-alternatives --set libgksu-gconf-defaults /usr/share/libgksu/debian/gconf-defaults.libgksu-sudo
+# make sure gksu runs in sudo mode
+sudo update-gconf-defaults
+clear
+
+echo "Installing config files to Home directory"
+echo "Please enter your username:"
+read USER
+export USER
+#install john raff script
+rsync --exclude-from 'exclude.txt'  -abviuzP bunsen-user-setup-master/bl-user-setup /home/$USER/.config/bunsen/bl-setup
+
+####### John Raff script
+cd /home/$USER/.config/bunsen
+sudo ./bl-setup
+###########
+
+rsync --exclude-from 'exclude.txt'  -abviuzP /etc/skel/. /home/$USER
+#just in case
+
+echo "Updating grub"
+sleep 5
+sudo update-grub
+clear
+
+echo "Thank you for installing Bunsen Labs Linux"
+read -p "Press [Enter] key to reboot..."
+echo "The system will now reboot"
+sleep 5
+sudo reboot
+
+exit 0

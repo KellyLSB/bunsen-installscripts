@@ -1,0 +1,14 @@
+https://github.com/BunsenLabs/bunsen-pipemenus/archive/master.tar.gz
+https://github.com/BunsenLabs/bunsen-common/archive/master.tar.gz
+https://github.com/BunsenLabs/bunsen-user-setup/archive/master.tar.gz
+https://github.com/BunsenLabs/bunsen-images/archive/master.tar.gz
+https://github.com/BunsenLabs/bunsen-conky/archive/master.tar.gz
+https://github.com/BunsenLabs/bunsen-lock/archive/master.tar.gz
+https://github.com/BunsenLabs/bunsen-wmhacks/archive/master.tar.gz
+https://github.com/BunsenLabs/deb8-theme/archive/master.tar.gz
+https://github.com/BunsenLabs/bunsen1-dark-theme/archive/master.tar.gz
+https://github.com/BunsenLabs/bunsen1-theme/archive/master.tar.gz
+https://github.com/BunsenLabs/bunsen-configs/archive/master.tar.gz
+https://github.com/BunsenLabs/bunsen-exit/archive/master.tar.gz
+https://github.com/BunsenLabs/bunsen-docs/archive/master.tar.gz
+
