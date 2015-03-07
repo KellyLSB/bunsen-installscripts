@@ -14,10 +14,15 @@ log in and run these commands, as a normal user:
 (A fresh copy of this bl-netinstall package will be downloaded.)
 
 wget https://github.com/isaaclo123/bunsen-installscripts/archive/master.tar.gz
+
 tar -xpf master.tar.gz
+
 cd bunsen-installscripts-master
+
 chmod +x INSTALL
+
 sudo ./INSTALL
+
 
 Bugs
 ----
