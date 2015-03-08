@@ -67,7 +67,7 @@ clear
 echo "Updating debian..."
 sleep 5
 sudo apt-get --force-yes update
-sudo apt-get --force-yes --no-install-recommends dist-upgrade
+yes | sudo apt-get --force-yes --no-install-recommends dist-upgrade
 sudo apt-get --force-yes autoremove
 
 echo "Installing packages..."
