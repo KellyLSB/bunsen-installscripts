@@ -45,7 +45,7 @@ rsync --exclude-from 'exclude.txt'  -abviuzP bunsen-docs-master/. /usr/share/doc
 # installs docs
 rsync --exclude-from 'exclude.txt'  -abviuzP bunsen-pipemenus-master/. /usr/bin
 # installs pipemenus
-rsync --exclude-from 'exclude.txt'  -abviuzP bunsen-exit-master/usr/. /usr
+rsync --exclude-from 'exclude.txt'  -abviuzP bunsen-exit-master/. /usr/bin
 # installs bl-exit
 mkdir /usr/share/backgrounds
 rsync --exclude-from 'exclude.txt'  -abviuzP bunsen1-theme-master/Wallpapers/. /usr/share/backgrounds
@@ -124,6 +124,12 @@ echo "Updating grub"
 sleep 5
 sudo update-grub
 clear
+
+echo "Updating lightdm configuration"
+cd /etc/lightdm
+sudo mv lightdm.conf lightdm.conf-orig
+sed 's|^# *session-setup-script= *$|session-setup-script=/usr/share/tinkerbox/tb-user-setup|' lightdm.conf-orig | sudo tee lightdm.conf >/dev/null
+cd
 
 echo "Thank you for installing Bunsen Labs Linux"
 read -p "Press [Enter] key to reboot..."
