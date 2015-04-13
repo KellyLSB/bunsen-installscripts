@@ -34,13 +34,13 @@ clear
 #######################
 # Step C - Update apt #
 #######################
-#if ! apt-get update; then
-#	whiptail --backtitle "BunsenLabs" \
-#		--title "Install Failed" \
-#		--msgbox "Could not update the apt repositories. Please check to ensure your repositories are setup correctly." 8 65 \
-#		--ok-button "Exit"
-#		exit 1
-#fi
+if ! apt-get update; then
+	whiptail --backtitle "BunsenLabs" \
+		--title "Install Failed" \
+		--msgbox "Could not update the apt repositories. Please check to ensure your repositories are setup correctly." 8 65 \
+		--ok-button "Exit"
+		exit 1
+fi
 
 clear
 
@@ -123,7 +123,7 @@ echo "Installing packages..."
 sleep 2
 
 # package list is mainly taken from John Raff's "Crunchbang Wally" http://crunchbang.org/forums/viewtopic.php?id=38994
-xargs < packages.txt apt-get --no-install-recommends --ignore-missing --force-yes install
+grep -E '^[^#]{1}' < packages.txt | apt-get --no-install-recommends --ignore-missing --force-yes install
 sudo apt-get --force-yes autoremove
 sudo apt-get --force-yes update
 sudo apt-get --force-yes --no-install-recommends upgrade
@@ -137,28 +137,28 @@ sudo update-alternatives --set libgksu-gconf-defaults /usr/share/libgksu/debian/
 sudo update-gconf-defaults
 clear
 
-echo "Installing config files to Home directory"
-echo "Please enter your username:"
-read USER
-export USER
+#echo "Installing config files to Home directory"
+#echo "Please enter your username:"
+#read USER
+#export USER
 #install john raff script
-rsync --exclude-from 'exclude.txt'  -abviuzP /tmp/bunsenlabs/bunsen-user-setup-master/bl-user-setup /home/$USER/.config/bunsen/bl-setup
+#rsync --exclude-from 'exclude.txt'  -abviuzP /tmp/bunsenlabs/bunsen-user-setup-master/bl-user-setup /home/$USER/.config/bunsen/bl-setup
 
 ####### John Raff bl-user-setup script
 # BunsenLabs User Set-up
 
 # USER="$1" USER is exported by lightdm
-rsync --exclude-from 'exclude.txt' -abviuzP /etc/skel/. /home/$USER
+#rsync --exclude-from 'exclude.txt' -abviuzP /etc/skel/. /home/$USER
 
-[ -f "/home/$USER/.gtk-bookmarks" ] && {
-    rpl -q 'REPLACEME' $USER /home/$USER/.gtk-bookmarks > /dev/null 2>&1
-}
+#[ -f "/home/$USER/.gtk-bookmarks" ] && {
+#    rpl -q 'REPLACEME' $USER /home/$USER/.gtk-bookmarks > /dev/null 2>&1
+#}
 
-ln -s /usr/share/backgrounds /home/$USER/images/wallpapers/shared
+#ln -s /usr/share/backgrounds /home/$USER/images/wallpapers/shared
 
-mkdir -p /home/$USER/.config/bunsen # this should already exist
-touch /home/$USER/.config/bunsen/bl-setup
-chown -R $USER:$USER /home/$USER
+#mkdir -p /home/$USER/.config/bunsen # this should already exist
+#touch /home/$USER/.config/bunsen/bl-setup
+#chown -R $USER:$USER /home/$USER
 ###########
 
 echo "Updating grub"
@@ -167,10 +167,10 @@ sudo update-grub
 clear
 
 echo "Updating lightdm configuration"
-cd /etc/lightdm
-sudo mv lightdm.conf lightdm.conf-orig
-sed 's|^# *session-setup-script= *$|session-setup-script=/usr/share/tinkerbox/tb-user-setup|' lightdm.conf-orig | sudo tee lightdm.conf >/dev/null
-cd
+#cd /etc/lightdm
+#sudo mv lightdm.conf lightdm.conf-orig
+#sed 's|^# *session-setup-script= *$|session-setup-script=/usr/share/tinkerbox/tb-user-setup|' lightdm.conf-orig | sudo tee lightdm.conf >/dev/null
+#cd
 
 echo "Thank you for installing Bunsen Labs Linux"
 read -p "Press [Enter] key to reboot..."
