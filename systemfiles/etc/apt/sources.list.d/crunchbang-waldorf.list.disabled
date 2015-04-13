@@ -1,0 +1,7 @@
+## CRUNCHBANG
+## Compatible with Debian Wheezy, but use at your own risk.
+deb http://packages.crunchbang.org/waldorf waldorf main
+deb-src http://packages.crunchbang.org/waldorf waldorf main
+
+## Install crunchbang package key
+## wget -qO - http://packages.crunchbang.org/waldorf-dev/crunchbang.key | sudo apt-key add -

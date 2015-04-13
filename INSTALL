@@ -1,84 +1,133 @@
-#!/bin/bash
-if [ "$(id -u)" != "0" ]; then
+#!/bin/bash -f
+
+# Environment Variables
+PATH=$(dirname $0)/lib:$PATH
+: ${TMPPATH:="/tmp/bunsenlabs"}
+
+# Cleanup the installer
+function cleanup() { rm -Rf $TMPPATH; }
+trap "cleanup" EXIT SIGQUIT SIGKILL
+
+#######################
+# Step A - Check Root #
+#######################
+if [[ $(id -u) > 0 ]]; then
    echo "This install script must be run as root" 1>&2
    exit 1
 fi
-#checkroot
+
+
+####################
+# Step B - Welcome #
+####################
+if ! whiptail --backtitle "BunsenLabs" \
+	--title "BunsenLabs Install" \
+	--yesno "Welcome to Bunsen Labs Linux installation!\n(WARNING THIS IS STILL UNDERGOING TESTING)" 8 65 \
+	--yes-button "Start Installation" \
+	--no-button "Cancel"; then
+	exit 1
+fi
 
 clear
-echo "Welcome to Bunsen Labs Linux installation (WARNING THIS IS STILL UNDERGOING TESTING)"
-echo "Please remember to open this file as root"
-read -p "Press [Enter] key to start install..."
+
+
+#######################
+# Step C - Update apt #
+#######################
+#if ! apt-get update; then
+#	whiptail --backtitle "BunsenLabs" \
+#		--title "Install Failed" \
+#		--msgbox "Could not update the apt repositories. Please check to ensure your repositories are setup correctly." 8 65 \
+#		--ok-button "Exit"
+#		exit 1
+#fi
+
 clear
 
-echo "Installing rsync"
-sleep 5
-sudo apt-get --force-yes install rsync
-clear
 
-echo "Downloading and extracting Bunsen files"
-sleep 5
-for files in $(cat bunsenfiles.txt) ; do 
-	wget $files
-	tar -xpf master.tar.gz
-	rm -r master.tar.gz
-done
-clear
+###################################################
+# Step 1 - Installation Dependencies              #
+# Let's promote transparency of actions shall we? #
+# => See install() for details.                   #
+###################################################
+if whiptail --backtitle "BunsenLabs" \
+	--title "Install Dependencies" \
+	--yesno "In order to install we need to ensure rsync and curl are available.\nMay we install Rsync, Curl and any other required dependencies with:\n\`apt-get install --no-install-recommends --no-install-suggests --force-yes rsync curl bc\`" 9 65 \
+	--yes-button "Install" \
+	--no-button "Exit Installation"; then
 
+	apt-get install --no-install-recommends --no-install-suggests --force-yes rsync curl bc
+else
+	clear
+	exit 1
+fi
+
+
+###########################################
+# Step 2 - Bunsel Configurations Download #
+###########################################
+clear
+xargs -n1 < bunsenfiles.txt githubtar -r $repo
+
+###########################################
+# Step 3 - Place BunsenLabs configuration #
+###########################################
+# @TODO Move the destinations to the repositories
+# 			I'm assuming eventually a level of Deb support
+# 			Other using Git wholely in which case another
+# 			Package manager
+clear
 echo "Moving system files..."
-sleep 5
+sleep 2
+
 rm -r /etc/skel
 mkdir /etc/skel
 # removes default debian default home directory install and makes space for config files
-rsync --exclude-from 'exclude.txt'  -abviuzP systemfiles/. /
+rsync --exclude-from 'exclude.txt'  -abviuzP /tmp/bunsenlabs/bunsen-installscripts/systemfiles/. /
 #copies some system files
-rsync --exclude-from 'exclude.txt'  -abviuzP bunsen1-dark-theme-master /usr/share/themes
-rsync --exclude-from 'exclude.txt'  -abviuzP deb8-theme-master  /usr/share/themes
-rsync --exclude-from 'exclude.txt'  -abviuzP bunsen1-theme-master/Bunsen1 /usr/share/themes
+rsync --exclude-from 'exclude.txt'  -abviuzP /tmp/bunsenlabs/bunsen1-dark-theme-master /usr/share/themes
+rsync --exclude-from 'exclude.txt'  -abviuzP /tmp/bunsenlabs/deb8-theme-master  /usr/share/themes
+rsync --exclude-from 'exclude.txt'  -abviuzP /tmp/bunsenlabs/bunsen1-theme-master/Bunsen1 /usr/share/themes
 #copies over themes
-rsync --exclude-from 'exclude.txt'  -abviuzP bunsen-configs-master/. /etc/skel
+rsync --exclude-from 'exclude.txt'  -abviuzP /tmp/bunsenlabs/bunsen-configs-master/. /etc/skel
 # copies config files
 mkdir /etc/skel/conky-BL
-rsync --exclude-from 'exclude.txt'  -abviuzP bunsen-conky-master/. /etc/skel/conky-BL
+rsync --exclude-from 'exclude.txt'  -abviuzP /tmp/bunsenlabs/bunsen-conky-master/. /etc/skel/conky-BL
 # conky installation
-rsync --exclude-from 'exclude.txt'  -abviuzP bunsen-docs-master/. /usr/share/doc
+rsync --exclude-from 'exclude.txt'  -abviuzP /tmp/bunsenlabs/bunsen-docs-master/. /usr/share/doc
 # installs docs
-rsync --exclude-from 'exclude.txt'  -abviuzP bunsen-pipemenus-master/. /usr/bin
+rsync --exclude-from 'exclude.txt'  -abviuzP /tmp/bunsenlabs/bunsen-pipemenus-master/. /usr/bin
 # installs pipemenus
-rsync --exclude-from 'exclude.txt'  -abviuzP bunsen-exit-master/. /usr/bin
+rsync --exclude-from 'exclude.txt'  -abviuzP /tmp/bunsenlabs/bunsen-exit-master/. /usr/bin
 # installs bl-exit
 mkdir /usr/share/backgrounds
-rsync --exclude-from 'exclude.txt'  -abviuzP bunsen1-theme-master/Wallpapers/. /usr/share/backgrounds
-rsync --exclude-from 'exclude.txt'  -abviuzP bunsen-images-master/. /usr/share/backgrounds
+rsync --exclude-from 'exclude.txt'  -abviuzP /tmp/bunsenlabs/bunsen1-theme-master/Wallpapers/. /usr/share/backgrounds
+rsync --exclude-from 'exclude.txt'  -abviuzP /tmp/bunsenlabs/bunsen-images-master/. /usr/share/backgrounds
 # installs wallpaper set
-rsync --exclude-from 'exclude.txt'  -abviuzP bunsen-wmhacks-master/. /usr/bin
+rsync --exclude-from 'exclude.txt'  -abviuzP /tmp/bunsenlabs/bunsen-wmhacks-master/. /usr/bin
 # installs wm hacks
-rsync --exclude-from 'exclude.txt'  -abviuzP bunsen-lock-master/. /usr/bin
+rsync --exclude-from 'exclude.txt'  -abviuzP /tmp/bunsenlabs/bunsen-lock-master/. /usr/bin
 # installs bunsen-lock
 mkdir /usr/lib/bunsen/bunsen-common
 rsync --exclude-from 'exclude.txt'  -abviuzP bunsen-common-master/. /usr/lib/bunsen/bunsen-common
 clear
 
-echo "Adding repo keys"
-sleep 5
-wget -qO - http://packages.crunchbang.org/waldorf-dev/crunchbang.key | sudo apt-key add -
-clear
-
 echo "Updating debian..."
-sleep 5
+sleep 2
+
 sudo apt-get --force-yes update
 yes | sudo apt-get --force-yes --no-install-recommends dist-upgrade
 sudo apt-get --force-yes autoremove
 
 echo "Installing packages..."
-sleep 5
+sleep 2
+
 # package list is mainly taken from John Raff's "Crunchbang Wally" http://crunchbang.org/forums/viewtopic.php?id=38994
-for pkg in $(cat packages.txt) ; do 
-		sudo apt-get --no-install-recommends --ignore-missing --yes --force-yes install $pkg
-	done
+xargs < packages.txt apt-get --no-install-recommends --ignore-missing --force-yes install
 sudo apt-get --force-yes autoremove
 sudo apt-get --force-yes update
 sudo apt-get --force-yes --no-install-recommends upgrade
+
 clear
 
 echo "Fix gksu"
@@ -93,18 +142,13 @@ echo "Please enter your username:"
 read USER
 export USER
 #install john raff script
-rsync --exclude-from 'exclude.txt'  -abviuzP bunsen-user-setup-master/bl-user-setup /home/$USER/.config/bunsen/bl-setup
+rsync --exclude-from 'exclude.txt'  -abviuzP /tmp/bunsenlabs/bunsen-user-setup-master/bl-user-setup /home/$USER/.config/bunsen/bl-setup
 
 ####### John Raff bl-user-setup script
 # BunsenLabs User Set-up
 
 # USER="$1" USER is exported by lightdm
-cd /etc/skel
-tar cpzf skel.tar.gz .
-mv skel.tar.gz /home/$USER/skel.tar.gz
-cd /home/$USER
-tar --backup -xpsf skel.tar.gz
-rm skel.tar.gz
+rsync --exclude-from 'exclude.txt' -abviuzP /etc/skel/. /home/$USER
 
 [ -f "/home/$USER/.gtk-bookmarks" ] && {
     rpl -q 'REPLACEME' $USER /home/$USER/.gtk-bookmarks > /dev/null 2>&1
@@ -116,9 +160,6 @@ mkdir -p /home/$USER/.config/bunsen # this should already exist
 touch /home/$USER/.config/bunsen/bl-setup
 chown -R $USER:$USER /home/$USER
 ###########
-
-rsync --exclude-from 'exclude.txt'  -abviuzP /etc/skel/. /home/$USER
-#just in case
 
 echo "Updating grub"
 sleep 5
