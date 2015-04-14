@@ -78,3 +78,12 @@ dmz-cursor-theme
 gtk2-engines-murrine
 gtk2-engines-pixbuf
 gtk2-engines
+lua-bitop
+lua-expat
+lua-filesystem
+lua-lpeg
+lua-penlight
+lua-posix
+lua-socket
+lua5.2
+python-paramiko
