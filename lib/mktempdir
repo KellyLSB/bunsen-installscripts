@@ -1,0 +1,13 @@
+#!/bin/bash -e
+
+if which mktemp &>/dev/null; then
+  mktemp -d --suffix "-BunsenLabs"
+else
+  DIR="/tmp/$(date -u '+%s')-BunsenLabs"
+
+  mkdir -p "$DIR"
+  echo $DIR
+
+  DIR= ;
+  unset DIR
+fi

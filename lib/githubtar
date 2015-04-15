@@ -1,11 +1,11 @@
-#!/bin/bash
+#!/bin/bash -e
 
 : ${REF:="master"}
-: ${DESTDIR:="/tmp/bunsenlabs"}
 : ${DLMETHOD:="curl"}
+: ${TMPPATH:="$(./mktempdir)"}
 
-while getopts ":r:b:t:e:g" opt; do
-  case $opt in
+while getopts ":r:b:t:e:g" OPTION; do
+  case $OPTION in
     g)
       DLMETHOD="git"
       ;;
@@ -19,27 +19,27 @@ while getopts ":r:b:t:e:g" opt; do
       DESTDIR="$OPTARG"
       ;;
     *)
-      echo "github(): invalid option -$opt" >&2
+      echo "github(): invalid option -$OPTION" >&2
       ;;
   esac
 done
 
-mkdir -p $DESTDIR
+mkdir -p "${TMPPATH}/repos"
 
 REMOTE="$(sed -Ee 's%^((git(@|://)|http(s|)://)github\.com(/|:)|)%https://github.com/%g' <<< "$REPO")"
 
-case $DLMETHOD in
+case "$DLMETHOD" in
   archive|curl)
     REMOTE="$(sed -Ee "s%(\.git|)$%/archive/${REF}.tar.gz%g" <<< "$REMOTE")"
 
     echo "Downloading $REMOTE ($REF)"
-    curl -#L $REMOTE $EXTRACT | tar xzpf - -C $DESTDIR
+    curl -#L "$REMOTE" "$EXTRACT" | tar xzpf - -C "${TMPPATH}/repos"
     ;;
   git)
-    git clone -b $REF $REMOTE $DESTDIR/$(basename $REMOTE)
+    git clone -b "$REF" "$REMOTE" "${DESTDIR}/$(basename $REMOTE)"
     ;;
 esac
 
-REPO= ; REF= ; EXTRACT= ; REMOTE= ; DESTDIR= ; DLMETHOD= ;
-unset REPO REF EXTRACT REMOTE DESTDIR DLMETHOD
+REPO= ; REF= ; EXTRACT= ; REMOTE= ; DLMETHOD= ;
+unset REPO REF EXTRACT REMOTE DLMETHOD
 exit 0
